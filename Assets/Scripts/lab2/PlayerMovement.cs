@@ -9,7 +9,6 @@ public class PlayerMovement : MonoBehaviour
     public float speed = 5f; // Швидкість руху
     public float horizontalSpeed = 3f; // Швидкість руху вліво-вправо
 
-
     public float jumpForce = 5f; // Сила стрибка
     public bool isGrounded = true; // Перевірка, чи герой на землі
 
@@ -20,13 +19,7 @@ public class PlayerMovement : MonoBehaviour
 
     private bool gameStarted = false;
 
-    [SerializeField] private Text coinsText;
-    [SerializeField] private int coins;
-
-
     private Animator animator;
-
-
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -34,11 +27,8 @@ public class PlayerMovement : MonoBehaviour
         gameStarted = false;
         originalSpeed = speed;
 
-        coins = 0;
-        PlayerPrefs.SetInt("coins", coins);
-        UpdateCoinsText();
-        coins = PlayerPrefs.GetInt("coins");
 
+        //визначаємо на старті аніматор
         animator = GetComponent<Animator>();
 
     }
@@ -87,10 +77,10 @@ public class PlayerMovement : MonoBehaviour
     void OnCollisionEnter(Collision collision)
     {
         //перевірка чи герой врізався в перешкоду
-        if (collision.gameObject.CompareTag("Obstacle"))
-        {
-            RestartGame();
-        }
+        //if (collision.gameObject.CompareTag("Obstacle"))
+        //{
+        //    RestartGame();
+        //}
 
         if (collision.gameObject.CompareTag("FinishLine"))
         {
@@ -105,7 +95,6 @@ public class PlayerMovement : MonoBehaviour
         {
             isGrounded = true;
             animator.SetBool("isJumping", false); // Завершуємо анімацію стрибка
-
         }
     }
 
@@ -130,49 +119,23 @@ public class PlayerMovement : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
+    //використовуються для обробки подій
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.CompareTag("Coin"))
-        {
-            // Перевіряємо, чи монета ще не оброблена
-            Coin coin = other.gameObject.GetComponent<Coin>();
-            if (coin != null && !coin.IsCollected)
-            {
-                coin.IsCollected = true; // Позначимо монету як зібрану
-                coins++;
-                PlayerPrefs.SetInt("coins", coins);
-                Debug.Log("Coins : " + coins);
-                UpdateCoinsText();
-                Destroy(other.gameObject);
-            }
-        }
-    }
-
-
-    private void UpdateCoinsText()
-    {
-        if (coinsText != null)
-        {
-            coinsText.text = "Coins : " + coins;
-        }
-        else
-        {
-            Debug.LogError("CoinsText is not assigned in PlayerMovement script!");
-        }
-    }
-
-
+    //підписуємось на подію
     void OnEnable()
     {
-        TakeDamageCollider.OnGameOver += HandleGameOver; // Підписуємося на подію
+        TakeDamageCollider.OnPlayerDead += HandleGameOver; // Підписуємося на подію
+        GameTimer.OnTimerEnd += HandleGameOver;
     }
 
+    //відписуємось на подію
     void OnDisable()
     {
-        TakeDamageCollider.OnGameOver -= HandleGameOver; // Відписуємося від події
+        TakeDamageCollider.OnPlayerDead -= HandleGameOver; // Відписуємося від події
+        GameTimer.OnTimerEnd -= HandleGameOver;
     }
 
+    //обробник події
     void HandleGameOver()
     {
         animator.SetBool("isDead", true); // Запускаємо анімацію смерті

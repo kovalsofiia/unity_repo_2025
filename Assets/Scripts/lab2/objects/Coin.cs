@@ -1,9 +1,10 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Coin : MonoBehaviour
 {
+//ця змінна потрібна для перевірки чи монету отримали і якщо так то у подальшому вона видаляється
     public bool IsCollected { get; set; } = false;
 
 
@@ -29,5 +30,4 @@ public class Coin : MonoBehaviour
         Vector3 newPosition = startPosition + Vector3.up * Mathf.Sin(Time.time * floatSpeed) * floatAmount;
         transform.position = newPosition;
     }
-
 }

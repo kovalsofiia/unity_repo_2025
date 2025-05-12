@@ -9,60 +9,28 @@ public class TakeDamageCollider : MonoBehaviour
     public int maxHealth = 100;
     public int currentHealth;
 
-    public static event Action OnGameOver; // Оголошуємо подію
-
-    public Text gameOverText; // Додаємо публічну змінну
-
-    public float gameDuration = 60f; // Тривалість гри (60 секунд)
-    private float timeRemaining;
-    public Text timerText;
-
+    public static event Action OnPlayerDead; // Оголошуємо подію
 
 
     void Start()
     {
         currentHealth = maxHealth;
         healthBar.SetMaxHealth(maxHealth);
-        gameOverText.gameObject.SetActive(false);
-        timeRemaining = gameDuration;
-    }
-
-    private void Update()
-    {
-        timeRemaining -= Time.deltaTime;
-
-        if (timeRemaining <= 0)
-        {
-            timeRemaining = 0;
-            CheckGameOver();
-        }
-        if (timerText != null)
-        {
-            timerText.text = "Час: " + Mathf.RoundToInt(timeRemaining);
-        }
     }
 
     void TakeDamage(int damage)
     {
+
         currentHealth -= damage;
         if (healthBar != null)
         {
             healthBar.SetHealth(currentHealth);
         }
-        CheckGameOver();
-    }
 
-    void CheckGameOver()
-    {
-        if (currentHealth <= 0 || timeRemaining <= 0) 
+        if (currentHealth <= 0)
         {
-            Debug.Log("Game Over!");
-            if (gameOverText != null)
-            {
-                gameOverText.text = "Гра закінчилась!"; // Встановлюємо текст
-                gameOverText.gameObject.SetActive(true); // Показуємо текст
-            }
-            OnGameOver?.Invoke();
+            Debug.Log("Player Dead!");
+            OnPlayerDead?.Invoke();
         }
     }
 
