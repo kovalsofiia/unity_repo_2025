@@ -11,7 +11,6 @@ public class TakeDamageCollider : MonoBehaviour
 
     public static event Action OnPlayerDead; // Оголошуємо подію
 
-
     void Start()
     {
         currentHealth = maxHealth;

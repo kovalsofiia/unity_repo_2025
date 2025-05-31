@@ -84,7 +84,8 @@ public class PlayerMovement : MonoBehaviour
 
         if (collision.gameObject.CompareTag("FinishLine"))
         {
-            RestartGame();
+            animator.SetBool("isJumping", true); // Запускаємо анімацію стрибка
+            StartCoroutine(FinishLevel());
         }
     }
 
@@ -139,7 +140,23 @@ public class PlayerMovement : MonoBehaviour
     void HandleGameOver()
     {
         animator.SetBool("isDead", true); // Запускаємо анімацію смерті
-        RestartGame(); // Викликаємо RestartGame()
+        StartCoroutine(RestartAfterDelay(2f)); // Запускаємо корутину з затримкою 2 секунди
+    }
+
+    IEnumerator RestartAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        RestartGame(); // Викликаємо перезапуск сцени
+    }
+
+
+    IEnumerator FinishLevel()
+    {
+        // Можна додати анімацію або звук тут
+        animator.SetBool("isWinner", true); // Запускаємо анімацію
+        Debug.Log("Level Completed!");
+        yield return new WaitForSeconds(2f);
+        RestartGame();
     }
 
 
