@@ -11,10 +11,17 @@ public class TakeDamageCollider : MonoBehaviour
 
     public static event Action OnPlayerDead; // Оголошуємо подію
 
+    [SerializeField] private Text trapsText; // Новий текст для перешкод
+    [SerializeField] private int traps; // Лічильник перешкод
+
     void Start()
     {
         currentHealth = maxHealth;
         healthBar.SetMaxHealth(maxHealth);
+
+        traps = 0;
+        PlayerPrefs.SetInt("traps", traps);
+        UpdateTrapsText();
     }
 
     void TakeDamage(int damage)
@@ -28,7 +35,6 @@ public class TakeDamageCollider : MonoBehaviour
 
         if (currentHealth <= 0)
         {
-            Debug.Log("Player Dead!");
             OnPlayerDead?.Invoke();
         }
     }
@@ -39,6 +45,22 @@ public class TakeDamageCollider : MonoBehaviour
         if (collision.gameObject.CompareTag("Pastka") && gameObject.CompareTag("Player"))
         {
             TakeDamage(20);
+            traps++;
+            PlayerPrefs.SetInt("traps", traps);
+            Debug.Log("Traps : " + traps);
+            UpdateTrapsText();
+        }
+    }
+
+    private void UpdateTrapsText()
+    {
+        if (trapsText != null)
+        {
+            trapsText.text = "Traps : " + traps;
+        }
+        else
+        {
+            Debug.LogError("TrapsText is not assigned!");
         }
     }
 

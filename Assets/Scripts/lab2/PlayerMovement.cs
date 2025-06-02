@@ -140,6 +140,7 @@ public class PlayerMovement : MonoBehaviour
     void HandleGameOver()
     {
         animator.SetBool("isDead", true); // Запускаємо анімацію смерті
+        Debug.Log("You are dead!");
         StartCoroutine(RestartAfterDelay(2f)); // Запускаємо корутину з затримкою 2 секунди
     }
 
