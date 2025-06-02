@@ -3,7 +3,6 @@ using System.Collections;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-
 public class PlayerMovement : MonoBehaviour
 {
     public float speed = 5f; // Швидкість руху
@@ -21,145 +20,126 @@ public class PlayerMovement : MonoBehaviour
 
     private Animator animator;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private bool isDead = false; // Чи мертвий гравець
+
+    [SerializeField] private GameObject gameComplete;
+
+
     void Start()
     {
         gameStarted = false;
         originalSpeed = speed;
-
-
-        //визначаємо на старті аніматор
         animator = GetComponent<Animator>();
-
+        gameComplete.gameObject.SetActive(false);
     }
 
-    // Update is called once per frame
     void Update()
     {
-        // Перевіряємо, чи гра почалася
+        if (isDead) return; // Блокуємо рух після смерті
+
         if (!gameStarted)
         {
-            // Якщо гра не почалася, чекаємо натискання W
             if (Input.GetKeyDown(KeyCode.W))
             {
-                gameStarted = true; // Гра почалася
+                gameStarted = true;
             }
-            return; // Виходимо з Update, якщо гра не почалася
+            return;
         }
 
-        // Рух вперед (W) і назад (S)
+        // Рух вперед
         transform.Translate(Vector3.forward * speed * Time.deltaTime, Space.Self);
 
-        // Рух вліво (A) і вправо (D)
+        // Рух вліво/вправо
         float horizontalInput = Input.GetAxis("Horizontal");
         transform.Translate(Vector3.right * horizontalInput * horizontalSpeed * Time.deltaTime, Space.Self);
-
 
         // Стрибок
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             GetComponent<Rigidbody>().AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             isGrounded = false;
-            animator.SetBool("isJumping", true); // Запускаємо анімацію стрибка
-
+            animator.SetBool("isJumping", true);
         }
 
-
-        // Прискорення LShift
+        // Прискорення
         if (Input.GetKeyDown(KeyCode.LeftShift) && !isBoosting)
         {
             StartCoroutine(Boost());
         }
 
-        animator.SetBool("isGrounded", isGrounded); // Оновлюємо параметр isGrounded
-
+        animator.SetBool("isGrounded", isGrounded);
     }
+
     void OnCollisionEnter(Collision collision)
     {
-        //перевірка чи герой врізався в перешкоду
-        //if (collision.gameObject.CompareTag("Obstacle"))
-        //{
-        //    RestartGame();
-        //}
-
         if (collision.gameObject.CompareTag("FinishLine"))
         {
-            animator.SetBool("isJumping", true); // Запускаємо анімацію стрибка
+            animator.SetBool("isJumping", true);
             StartCoroutine(FinishLevel());
         }
     }
 
     void OnCollisionStay(Collision collision)
     {
-        //перевірка чи герой на землі
         if (collision.gameObject.CompareTag("Ground"))
         {
             isGrounded = true;
-            animator.SetBool("isJumping", false); // Завершуємо анімацію стрибка
+            animator.SetBool("isJumping", false);
         }
     }
 
     IEnumerator Boost()
     {
         isBoosting = true;
-        animator.SetBool("isBoosting", true); // Запускаємо анімацію прискорення
-
-        speed *= boostSpeedMultiplier; // Прискорюємо
-
+        animator.SetBool("isBoosting", true);
+        speed *= boostSpeedMultiplier;
         yield return new WaitForSeconds(boostDuration);
-
-        speed = originalSpeed; // Повертаємо початкову швидкість
+        speed = originalSpeed;
         isBoosting = false;
-        animator.SetBool("isBoosting", false); // Завершуємо анімацію прискорення
-
+        animator.SetBool("isBoosting", false);
     }
 
     public void RestartGame()
     {
-        gameStarted = false; // Скидаємо стан гри
+        gameStarted = false;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    //використовуються для обробки подій
-
-    //підписуємось на подію
     void OnEnable()
     {
-        TakeDamageCollider.OnPlayerDead += HandleGameOver; // Підписуємося на подію
+        TakeDamageCollider.OnPlayerDead += HandleGameOver;
         GameTimer.OnTimerEnd += HandleGameOver;
     }
 
-    //відписуємось на подію
     void OnDisable()
     {
-        TakeDamageCollider.OnPlayerDead -= HandleGameOver; // Відписуємося від події
+        TakeDamageCollider.OnPlayerDead -= HandleGameOver;
         GameTimer.OnTimerEnd -= HandleGameOver;
     }
 
-    //обробник події
     void HandleGameOver()
     {
-        animator.SetBool("isDead", true); // Запускаємо анімацію смерті
+        if (isDead) return; // Не повторюємо, якщо вже мертвий
+
+        isDead = true;
+        animator.SetBool("isDead", true);
         Debug.Log("You are dead!");
-        StartCoroutine(RestartAfterDelay(2f)); // Запускаємо корутину з затримкою 2 секунди
     }
 
     IEnumerator RestartAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-        RestartGame(); // Викликаємо перезапуск сцени
-    }
-
-
-    IEnumerator FinishLevel()
-    {
-        // Можна додати анімацію або звук тут
-        animator.SetBool("isWinner", true); // Запускаємо анімацію
-        Debug.Log("Level Completed!");
-        yield return new WaitForSeconds(2f);
         RestartGame();
     }
 
+    IEnumerator FinishLevel()
+    {
+        animator.SetBool("isWinner", true);
+        if (gameComplete != null)
+        {
+            gameComplete.gameObject.SetActive(true);
+        }
+        yield return new WaitForSeconds(2f);
 
-
+    }
 }

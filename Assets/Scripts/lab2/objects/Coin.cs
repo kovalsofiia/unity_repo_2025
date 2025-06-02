@@ -4,30 +4,39 @@ using UnityEngine;
 
 public class Coin : MonoBehaviour
 {
-//ця змінна потрібна для перевірки чи монету отримали і якщо так то у подальшому вона видаляється
-    public bool IsCollected { get; set; } = false;
-
-
-    public float rotationSpeed = 100f; // Adjust this value to control the speed of rotation
-    public float floatSpeed = 0.5f; // Adjust this value to control the speed of floating
-    public float floatAmount = 0.1f; // Adjust this value to control the amount of float
-
-    private Vector3 startPosition;
-
-    // Start is called before the first frame update
-    void Start()
+    private bool _isCollected = false;
+    [SerializeField]
+    public bool IsCollected
     {
-        startPosition = transform.position;
+        get { return _isCollected; }
+        set { _isCollected = value; }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        // Rotate the coin around its local up axis (y-axis) with the specified speed
-        transform.Rotate(Vector3.up, rotationSpeed * Time.deltaTime);
+    private Animator _animator;
 
-        // Move the coin up and down using a sine wave
-        Vector3 newPosition = startPosition + Vector3.up * Mathf.Sin(Time.time * floatSpeed) * floatAmount;
-        transform.position = newPosition;
+    void Awake()
+    {
+        _animator = GetComponent<Animator>();
+        if (_animator == null)
+        {
+            Debug.LogError("Animator component not found on Coin object! Please add an Animator to the Coin Prefab.", this);
+        }
+    }
+
+    public void PlayBounceAnimation()
+    {
+        if (_animator != null)
+        {
+            // Reset trigger, щоб він точно спрацював знову, якщо він був якимось чином заблокований
+            _animator.ResetTrigger("PlayBounce"); // Додайте цей рядок
+            _animator.SetTrigger("PlayBounce");
+            Debug.Log($"Playing bounce animation for {gameObject.name}"); // Для налагодження
+        }
+    }
+
+    public void OnBounceAnimationComplete()
+    {
+        Debug.Log($"Animation complete, destroying {gameObject.name}"); // Для налагодження
+        Destroy(gameObject);
     }
 }

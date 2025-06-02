@@ -3,14 +3,13 @@ using UnityEngine.UI;
 
 public class CoinsCollector : MonoBehaviour
 {
-
     [SerializeField] private Text coinsText;
     [SerializeField] private int coins;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     void Start()
     {
-        coins = 0;
-        PlayerPrefs.SetInt("coins", coins);
+        coins = 0; 
+        PlayerPrefs.SetInt("coins", coins); // Цей рядок скидає збережені монети до 0
         UpdateCoinsText();
     }
 
@@ -18,7 +17,6 @@ public class CoinsCollector : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Coin"))
         {
-            // Перевіряємо, чи монета ще не оброблена
             Coin coin = other.gameObject.GetComponent<Coin>();
             if (coin != null && !coin.IsCollected)
             {
@@ -27,13 +25,14 @@ public class CoinsCollector : MonoBehaviour
                 PlayerPrefs.SetInt("coins", coins);
                 Debug.Log("Coins : " + coins);
                 UpdateCoinsText();
-                //видаляється зібрана вже монета
-                Destroy(other.gameObject);
+
+                // Запускаємо анімацію підстрибування
+                coin.PlayBounceAnimation();
+                // Монета буде видалена після завершення анімації
             }
         }
     }
 
-    //функція для оновлення тексту кількості монет. 
     private void UpdateCoinsText()
     {
         if (coinsText != null)
@@ -42,8 +41,7 @@ public class CoinsCollector : MonoBehaviour
         }
         else
         {
-            Debug.LogError("CoinsText is not assigned in PlayerMovement script!");
+            Debug.LogError("CoinsText is not assigned in CoinsCollector script!");
         }
     }
-
 }

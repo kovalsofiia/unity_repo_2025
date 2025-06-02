@@ -6,7 +6,7 @@ public class TotalTimer : MonoBehaviour
 {
     private float elapsedTime = 0f;
     public Text timerText;
-    public Text gameOverText;
+    [SerializeField] private GameObject deathPanel;
 
     private bool isGameRunning = true;
 
@@ -14,7 +14,8 @@ public class TotalTimer : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        gameOverText.gameObject.SetActive(false);
+        if (deathPanel != null)
+            deathPanel.SetActive(false);
         elapsedTime = 0f;
     }
 
@@ -35,10 +36,11 @@ public class TotalTimer : MonoBehaviour
                 isGameRunning = false;
                 OnTimerEnd?.Invoke();
 
-                if (gameOverText != null)
+                if (deathPanel != null)
+                    deathPanel.SetActive(false);
                 {
-                    gameOverText.gameObject.SetActive(true);
-                    gameOverText.text = "Game Over\nTotal Time: " + Mathf.RoundToInt(elapsedTime) + "s";
+                    deathPanel.gameObject.SetActive(true);
+                    Debug.Log("Game Over\nTotal Time: " + Mathf.RoundToInt(elapsedTime) + "s");
                 }
             }
         }
