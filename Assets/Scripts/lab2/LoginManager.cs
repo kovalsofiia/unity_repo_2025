@@ -8,6 +8,7 @@ public class LoginManager : MonoBehaviour
     public Button startButton;
     public Text warningText;
 
+
     void Start()
     {
         warningText.text = "";

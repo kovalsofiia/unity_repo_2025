@@ -8,6 +8,9 @@ TagManager:
   - Ground
   - Obstacle
   - FinishLine
+  - Coin
+  - Pastka
+  - Enemy
   layers:
   - Default
   - TransparentFX
